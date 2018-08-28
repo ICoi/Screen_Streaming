@@ -1,0 +1,6 @@
+framework module Pods_Screen_StreamingTests {
+  umbrella header "Pods-Screen_StreamingTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
