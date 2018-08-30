@@ -22,12 +22,15 @@ class ViewController: UIViewController, RPScreenRecorderDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        
-        broadcaster.streamName = "streamName"
-        broadcaster.connect("rtmp://a.rtmp.youtube.com/live2/qqrz-8ay2-f6sx-e8v2", arguments: nil)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        
+        broadcaster.streamName = "qqrz-8ay2-f6sx-e8v2"
+        broadcaster.connect("rtmp://a.rtmp.youtube.com/live2/qqrz-8ay2-f6sx-e8v2", arguments: nil)
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -39,15 +42,25 @@ class ViewController: UIViewController, RPScreenRecorderDelegate {
                 print("Error is occured \(error.debugDescription)")
             } else {
                 
-                if let description: CMVideoFormatDescription = CMSampleBufferGetFormatDescription(cmSampleBuffer) {
-                    let dimensions: CMVideoDimensions = CMVideoFormatDescriptionGetDimensions(description)
-                    self.broadcaster.stream.videoSettings = [
-                        "width": dimensions.width,
-                        "height": dimensions.height ,
-                        "profileLevel": kVTProfileLevel_H264_Baseline_AutoLevel
-                    ]
+                if (rpSampleBufferType == RPSampleBufferType.audioApp) {
+                    print("Audio")
+                    self.broadcaster.appendSampleBuffer(cmSampleBuffer, withType: .audio)
+                    
+                } else if (rpSampleBufferType == RPSampleBufferType.video) {
+                    print("Video")
+                    
+                    
+                    if let description: CMVideoFormatDescription = CMSampleBufferGetFormatDescription(cmSampleBuffer) {
+                        let dimensions: CMVideoDimensions = CMVideoFormatDescriptionGetDimensions(description)
+                        self.broadcaster.stream.videoSettings = [
+                            "width": dimensions.width,
+                            "height": dimensions.height ,
+                            "profileLevel": kVTProfileLevel_H264_Baseline_AutoLevel
+                        ]
+                    }
+                    self.broadcaster.appendSampleBuffer(cmSampleBuffer, withType: .video)
                 }
-                self.broadcaster.appendSampleBuffer(cmSampleBuffer, withType: .video)
+                
                 
             }
         }) { (error) in
@@ -64,6 +77,7 @@ class ViewController: UIViewController, RPScreenRecorderDelegate {
             if (error != nil) {
                 print("Error is occured \(error.debugDescription)")
             }
+            self.broadcaster.close()
         }
     }
     
