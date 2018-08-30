@@ -28,14 +28,15 @@ class ViewController: UIViewController, RPScreenRecorderDelegate {
         super.viewDidAppear(animated)
         
         
+        sharedRecorder = RPScreenRecorder.shared()
         broadcaster.streamName = "qqrz-8ay2-f6sx-e8v2"
-        broadcaster.connect("rtmp://a.rtmp.youtube.com/live2/qqrz-8ay2-f6sx-e8v2", arguments: nil)
+        broadcaster.connect("rtmp://a.rtmp.youtube.com/live2/", arguments: nil)
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    // MARK: Streaming
     @IBAction func startScreenStreaming(_ sender: Any) {
         rpScreenRecorder.startCapture(handler: { (cmSampleBuffer, rpSampleBufferType, error) in
             if (error != nil) {
@@ -80,9 +81,40 @@ class ViewController: UIViewController, RPScreenRecorderDelegate {
             self.broadcaster.close()
         }
     }
+    // MARK: Camera
+    var sharedRecorder :RPScreenRecorder? = nil
     
-    /********** RPScreenRecorderDelegate *********/
+    @IBAction func askCameraPermission(_ sender: Any) {
+        AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
+            if response {
+                //access granted
+            } else {
+                
+            }
+        }
+    }
     
+    @IBAction func turnOnCamera(_ sender: Any) {
+        sharedRecorder?.isCameraEnabled = true
+    }
+    @IBAction func showCamera(_ sender: Any) {
+        let cameraView = sharedRecorder?.cameraPreviewView
+        
+        if(cameraView != nil) {
+            cameraView?.frame = CGRect(x: 0, y: 0, width: 150, height: 150)
+            self.view.addSubview(cameraView!)
+        }
+    }
+    
+    // MARK: Microphone
+    
+    @IBAction func askMicrophonePermission(_ sender: Any) {
+    }
+    
+    @IBAction func turnOnMic(_ sender: Any) {
+    }
+    
+    // MARK: RPScreenRecorderDelegate
     public func screenRecorder(_ screenRecorder: RPScreenRecorder, didStopRecordingWith previewViewController: RPPreviewViewController?, error: Error?) {
         print("did Stop Recording")
     }
